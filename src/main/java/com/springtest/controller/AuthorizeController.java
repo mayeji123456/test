@@ -1,15 +1,22 @@
 package com.springtest.controller;
 
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.springtest.tool.AccessTokenDTO;
+import com.springtest.model.AccessTokenDTO;
+import com.springtest.model.GithubUser;
+import com.springtest.model.User;
+import com.springtest.repository.UserRepository;
 import com.springtest.tool.GithubProvider;
-import com.springtest.tool.GithubUser;
-import com.springtest.tool.HttpRequest;
+
+import okhttp3.Request;
 
 @Controller
 public class AuthorizeController {
@@ -17,17 +24,19 @@ public class AuthorizeController {
 	@Autowired
 	private GithubProvider githubProvider;
 	
-	@Value("${github.Client_id}")
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Value("${github.Client.id}")
 	private String Client_id;
-	@Value("${github.Client_secret}")
+	@Value("${github.Client.secret}")
 	private String Client_secret;
-	@Value("${github.Redirect_uri}")
+	@Value("${github.Redirect.uri}")
 	private String Redirect_uri;
 	@GetMapping("/callback")
-	public String callback(@RequestParam(name="code") String code,@RequestParam(name="state") String state) {
-//		String sr=HttpRequest.sendPost("https://github.com/login/oauth/access_token", 
-//				"client_id=16153c947bee8283a03e&client_secret=2c6b8ca6c80d0942a29691049f32109b7918cd59"
-//				+"&code="+code+"&redirect_uri=localhot:9999/callback&state="+state);
+	public String callback(@RequestParam(name="code") String code,@RequestParam(name="state") String state
+			,HttpServletRequest request) {
+
 		AccessTokenDTO accessTokenDTO=new AccessTokenDTO();
 		accessTokenDTO.setClient_id(Client_id);
 		accessTokenDTO.setClient_secret(Client_secret);
@@ -36,7 +45,21 @@ public class AuthorizeController {
 		accessTokenDTO.setState(state);
 		String accessToken = githubProvider.GetAccessToken(accessTokenDTO);
 		GithubUser githubUser=githubProvider.getUser(accessToken);
-		System.out.println(githubUser.getName());
-		return "index";
+		
+		//System.out.println(githubUser.getName());
+		if(githubUser!=null) {
+			request.getSession().setAttribute("user", githubUser);
+			User u=new User();
+			u.setName(githubUser.getName());
+			u.setAccount_id(String.valueOf(githubUser.getId()));
+			u.setGmt_create(System.currentTimeMillis());
+			u.setGmt_modified(u.getGmt_create());
+			u.setToken(UUID.randomUUID().toString());
+			userRepository.save(u);
+			return "redirect:/";
+		}else {
+			return "redirect:/";
+		}
+		
 	}
 }

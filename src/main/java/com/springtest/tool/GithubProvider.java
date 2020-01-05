@@ -4,6 +4,8 @@ package com.springtest.tool;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.springtest.model.AccessTokenDTO;
+import com.springtest.model.GithubUser;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -26,7 +28,6 @@ public class GithubProvider {
 		try (Response response = client.newCall(request).execute()) {
 			String result=response.body().string();
 			String token=result.split("&")[0].split("=")[1];
-			System.out.println(token);
 			return token;	
 		}catch (Exception e) {
 			// TODO: handle exception

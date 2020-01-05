@@ -1,4 +1,4 @@
-package com.springtest.tool;
+package com.springtest.model;
 
 public class AccessTokenDTO {
 	private String client_id;

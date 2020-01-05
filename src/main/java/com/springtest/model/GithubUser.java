@@ -1,4 +1,4 @@
-package com.springtest.tool;
+package com.springtest.model;
 
 public class GithubUser {
 	private String name;
@@ -24,6 +24,10 @@ public class GithubUser {
 	}
 	public GithubUser() {
 		super();
+	}
+	@Override
+	public String toString() {
+		return "GithubUser [name=" + name + ", id=" + id + ", bio=" + bio + "]";
 	}
 	
 	
