@@ -9,14 +9,21 @@ import lombok.Data;
 
 @Entity
 @Data
-public class User {
-	
+public class Article {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
 	
-	private String name;
-	private String token;
+	private String title;
+	private String text;
+	private String tag;
+	
+	private String author;
+	private Integer commentcount;
+	private Integer viewcount;
+	private Integer likecount;
+	
 	private Long gmtcreate;
 	private Long gmtmodified;
+	
 }
