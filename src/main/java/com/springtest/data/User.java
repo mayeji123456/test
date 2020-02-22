@@ -1,4 +1,4 @@
-package com.springtest.model;
+package com.springtest.data;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,10 +13,12 @@ public class User {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Integer id;
+	private Long id;
 	
+	private Long accountid;
 	private String name;
 	private String token;
+	
 	private Long gmtcreate;
 	private Long gmtmodified;
 }

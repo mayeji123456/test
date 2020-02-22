@@ -1,4 +1,4 @@
-package com.springtest.model;
+package com.springtest.DTO;
 
 import lombok.Data;
 

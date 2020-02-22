@@ -9,15 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.springtest.model.User;
-
-import com.springtest.service.GithubService;
+import com.springtest.data.User;
+import com.springtest.service.UserService;
 
 @Service
 public class SessionInterceptor implements HandlerInterceptor {
 	
 	@Autowired
-	private GithubService githubservice;
+	private UserService githubservice;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

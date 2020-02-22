@@ -1,16 +1,15 @@
 package com.springtest.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
-import com.springtest.model.AccessTokenDTO;
-import com.springtest.model.GithubUser;
-import com.springtest.model.User;
+import com.springtest.DTO.AccessTokenDTO;
+import com.springtest.DTO.GithubUserDTO;
+import com.springtest.data.User;
 import com.springtest.repository.UserRepository;
 
 import okhttp3.MediaType;
@@ -20,7 +19,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 @Service
-public class GithubService {
+public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
@@ -37,8 +36,21 @@ public class GithubService {
 		return list.get(0);
 	}
 	
-	public void saveuser(User user) {
-		userRepository.save(user);
+	public User finduserbyid(Long id) {
+		return userRepository.findById(id).orElse(null);
+	}
+	public void updateuser(User user) {
+		List<User> users=userRepository.findByAccountid(user.getAccountid());
+		if(users==null||users.size()==0) {
+			user.setGmtcreate(System.currentTimeMillis());
+			user.setGmtmodified(user.getGmtcreate());
+			userRepository.save(user);
+		}else {
+			user.setId(users.get(0).getId());
+			user.setGmtcreate(users.get(0).getGmtcreate());
+			user.setGmtmodified(System.currentTimeMillis());
+			userRepository.save(user);
+		}
 	}
 	
 
@@ -64,7 +76,7 @@ public class GithubService {
 		return null;
 	}
 	
-	public GithubUser getUser(String code,String state) {
+	public GithubUserDTO getUser(String code,String state) {
 		AccessTokenDTO accessTokenDTO=new AccessTokenDTO();
 		accessTokenDTO.setClient_id(Client_id);
 		accessTokenDTO.setClient_secret(Client_secret);
@@ -82,8 +94,8 @@ public class GithubService {
 		try (Response response = client.newCall(request).execute()) {
 			String result=response.body().string();
 			//System.out.println(result);
-			GithubUser githubUser=JSON.parseObject(result,GithubUser.class);
-			return githubUser;
+			GithubUserDTO githubUserDTO=JSON.parseObject(result,GithubUserDTO.class);
+			return githubUserDTO;
 		}catch (Exception e) {
 			// TODO: handle exception
 		}

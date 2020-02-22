@@ -1,9 +1,12 @@
-package com.springtest.model;
+package com.springtest.data;
+
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+
 
 import lombok.Data;
 
@@ -12,15 +15,19 @@ import lombok.Data;
 public class Article {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Integer id;
+	private Long id;
 	
 	private String title;
 	private String text;
 	private String tag;
 	
-	private String author;
+	private Long authorid;
+	
+
 	private Integer commentcount;
+
 	private Integer viewcount;
+
 	private Integer likecount;
 	
 	private Long gmtcreate;

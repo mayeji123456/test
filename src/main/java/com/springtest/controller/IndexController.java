@@ -13,26 +13,26 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.springtest.model.Article;
-import com.springtest.model.GithubUser;
-import com.springtest.model.User;
-
+import com.springtest.DTO.ArticleDTO;
+import com.springtest.DTO.GithubUserDTO;
+import com.springtest.data.User;
 import com.springtest.service.ArticleService;
-import com.springtest.service.GithubService;
+import com.springtest.service.UserService;
 
 @Controller
 public class IndexController {
 	@Autowired
-	private GithubService githubservice;
+	private UserService githubservice;
 	@Autowired
 	private ArticleService articleservice;
 	
 	@GetMapping("/")
 	public String index(HttpServletRequest request,@RequestParam(value="page",defaultValue="1")String page,Model model) {
 		int maxpage=articleservice.getmaxpage();
+		
+		List<ArticleDTO> a=articleservice.getarticlebypage(Integer.parseInt(page));
 		model.addAttribute("maxpage", maxpage);
-		List<Article> a=articleservice.getarticlebypage(Integer.parseInt(page));
-		model.addAttribute("article", a);
+		model.addAttribute("articleDTO", a);
 		model.addAttribute("page", Math.min(Integer.parseInt(page), maxpage));
 		return "index";
 	}
@@ -41,24 +41,19 @@ public class IndexController {
 	public String callback(@RequestParam(name="code") String code,@RequestParam(name="state") String state
 			,HttpServletResponse response) {
 
-		GithubUser githubUser=githubservice.getUser(code,state);
+		GithubUserDTO githubUserDTO=githubservice.getUser(code,state);
 		
 		//System.out.println(githubUser.getName());
-		if(githubUser!=null) {
-			//request.getSession().setAttribute("user", githubUser);
+		if(githubUserDTO!=null) {
 			String mytoken=UUID.randomUUID().toString();
 			response.addCookie(new Cookie("token", mytoken));
 			User u=new User();
-			u.setName(githubUser.getName());
-			u.setGmtcreate(System.currentTimeMillis());
-			u.setGmtmodified(u.getGmtcreate());
+			u.setName(githubUserDTO.getName());
 			u.setToken(mytoken);
-			githubservice.saveuser(u);
-			return "redirect:/";
-		}else {
-			return "redirect:/";
+			u.setAccountid(githubUserDTO.getId());
+			githubservice.updateuser(u);
 		}
-		
+		return "redirect:/";
 	}
 	
 	@GetMapping("/logout")

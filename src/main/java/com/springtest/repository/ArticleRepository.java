@@ -1,17 +1,17 @@
 package com.springtest.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.springtest.model.Article;
-import com.springtest.model.User;
+import com.springtest.data.Article;
 
-public interface ArticleRepository extends CrudRepository<Article, Integer>{
-	List findAllByOrderByGmtmodified();
+
+public interface ArticleRepository extends CrudRepository<Article, Long>{
+	public List<Article> findAllByOrderByGmtmodifiedDesc();
 	
-	List findByAuthorEquals(String author);
+	public List<Article> findByAuthoridOrderByGmtmodifiedDesc(Long authorid);
 	
-	Optional<Article> findById(Integer id);
+	public List<Article> findByTagOrderByGmtmodified(String tag);
+	
 }

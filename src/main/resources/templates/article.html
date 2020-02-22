@@ -1,46 +1,113 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title th:text="${article.getTitle()}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
-	<link rel="stylesheet" href="/css/bootstrap.min.css">
+<title th:text="${articleDTO.article.title}">文章</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="/css/bootstrap.min.css">
 
-	<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
-	<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
 
-	<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-	
-	<script src="/js/jquery-3.4.1.js" type="application/javascript"></script>
-	<script src="/js/bootstrap.min.js" type="application/javascript"></script>
-	
-	
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+
+<script src="/js/jquery-3.4.1.js" type="application/javascript"></script>
+<script src="/js/bootstrap.min.js" type="application/javascript"></script>
+
+<script src="/js/myjs.js"></script>
 </head>
-<body style="background-color:darkgray;margin:30px">
-<div th:insert="navigation :: copy"></div>
 
-<div class="container-fluid" style="background-color:white">
-  <div class="row">
-    <div class="col-lg-9 .col-md-12 .col-sm-12 .col-xs-12">
-   		<h3 class="list-group-item-heading" th:text="${article.getTitle()}" style="margin-top:15px"></h3>
-    	<p class="list-group-item-text"><span th:text="${article.getViewcount()}"></span>次阅读，
-    	<span th:text="${article.getLikecount()}"></span>个点赞</p>
-   	<hr>
-   	<span th:text="${article.getText()}"></span>
-   	<hr>
-	<a th:href="@{'/publish/'+${article.getId()}}">
-	<span class="glyphicon glyphicon-pencil" aria-hidden="true" th:if="${session.user!=null&&article.getAuthor().equals(session.user.getName())}"
-	 ></span>编辑</a>
-    </div>
-    	
-    <div class="col-lg-3 .col-md-12 .col-sm-12 .col-xs-12" style="background-color:white; margin-top:50px">
-    	<h3>作者</h3>
-    	<div th:text="${article.getAuthor()}"></div>
-    	
-    	<h3>相关问题</h3>
-    </div>
-  </div>
-</div>
+<body style="background-color: darkgray; margin: 30px">
+	<div th:insert="navigation :: copy"></div>
+
+	<div class="container-fluid" style="background-color: white">
+		<div class="row">
+			<div class="col-lg-9 .col-md-12 .col-sm-12 .col-xs-12">
+				<h3 class="list-group-item-heading"
+					th:text="${articleDTO.article.title}" style="margin-top: 15px"></h3>
+				<p class="list-group-item-text">
+					<span th:text="${articleDTO.article.viewcount}"></span>次阅读， <span
+						th:text="${articleDTO.article.likecount}"></span>个点赞
+				</p>
+				<hr>
+				<span th:text="${articleDTO.article.text}"></span>
+				<button class="btn btn-default pull-right" th:data-id="${articleDTO.article.id}" th:data-type="1" onclick="thumbsup(this)">
+					<span class="glyphicon glyphicon-thumbs-up">点赞</span>
+					<span class="badge" th:text="${articleDTO.article.likecount}" th:if="${articleDTO.article.likecount>0}"></span>
+				</button>
+				<hr>
+				<div>
+					<span class="label label-info" th:text="${articleDTO.article.tag}"></span>
+				</div>
+				
+				<a th:href="@{'/publish/'+${articleDTO.article.id}}"> <span
+					class="glyphicon glyphicon-pencil" aria-hidden="true"
+					th:if="${session.user!=null&&articleDTO.author.id==session.user.id}"></span>编辑
+				</a>
+				<h3 th:text="${articleDTO.article.commentcount}+'个回复'"></h3>
+				<hr>
+
+				<ul class="col-lg-12 .col-md-12 .col-sm-12 .col-xs-12 media-list" th:each="cDTO:${commentDTO}">
+					<li class="media">
+						<div class="media-body">
+							<h3 class="media-heading" th:text="${cDTO.commentator.name}"></h3>
+							<div th:text="${cDTO.comment.text}"
+								style="margin-top: 20px; margin-bottom: 20px"></div>
+							<div class="menu">
+								<button class="btn btn-default" th:data-id="${cDTO.comment.id}" onclick="thumbsup(this)">
+									<span class="glyphicon glyphicon-thumbs-up">点赞</span>
+									<span class="badge" th:text="${cDTO.comment.likecount}" th:if="${cDTO.comment.likecount>0}"></span>
+								</button>
+								<button class="btn btn-default" th:data-id="${cDTO.comment.id}" onclick="collapseComments(this)">
+									<span class="glyphicon glyphicon-comment" th:text="评论"></span>
+									<span class="badge" th:text="${cDTO.comment.commentcount}" th:if="${cDTO.comment.commentcount>0}"></span>
+								</button>
+								
+								<span class="pull-right"
+									th:text="${#dates.format(cDTO.comment.gmtcreate,'yyyy-MM-dd')}"></span>
+							</div>
+							<div class="collapse" th:id="${'comment-'+cDTO.comment.id}" style="margin-left:30px;margin-top: 10px;">
+								<div class="col-lg-12 .col-md-12 .col-sm-12 .col-xs-12">
+									<input type="text" class="form-control" placeholder="评论一下" th:id="${'input-'+cDTO.comment.id}">
+									<button type="button" class="btn btn-success pull-right" style="margin-top:10px;" 
+										th:data-id="${cDTO.comment.id}" th:data-type="2" onclick="postcomment(this)">评论</button>
+								</div>
+							</div>
+						</div>
+					</li>
+					<hr>
+				</ul>
+
+
+				<input type="hidden" name="id" id="id"
+					th:value="${articleDTO.article.id}">
+				<div class="form-group">
+					<label for="title">回复内容</label>
+					<div>
+						<textarea rows="10" id="content" th:text="${text}"
+							style="width: 100%"></textarea>
+					</div>
+				</div>
+				<button type="button" class="btn btn-success"
+					onclick="postcomment(this)" th:data-id="${articleDTO.article.id}" th:data-type="1">回复</button>
+				<hr>
+			</div>
+
+
+			<div class="col-lg-3 .col-md-12 .col-sm-12 .col-xs-12"
+				style="background-color: white; margin-top: 50px">
+				<h3>作者</h3>
+				<div th:text="${articleDTO.author.name}"></div>
+
+				<h3>相关话题</h3>
+				<div th:each="relatedarticle:${relatedarticles}">
+					<a th:href="@{'/article/'+${relatedarticle.id}}" th:text="${relatedarticle.title}"></a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </body>
+
 </html>
